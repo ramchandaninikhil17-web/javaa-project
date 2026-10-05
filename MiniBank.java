@@ -8,53 +8,81 @@ public class MiniBank {
         System.out.println(bankInfo);
         System.out.println("=========================================\n");
 
-        // Create three Customer objects
-        Customer customer1 = new Customer("Alice Smith", "alice@example.com", "9876543210");
-        Customer customer2 = new Customer("Bob Jones", "bob@example.com", "9876543211");
+        // Requirement 3: Customer with nested Address class
+        Customer.Address addr1 = new Customer.Address("12 MG Road", "Bengaluru", "560001");
+        Customer.Address addr2 = new Customer.Address("45 Park Street", "Kolkata", "700016");
+
+        Customer customer1 = new Customer("Alice Smith", "alice@example.com", "9876543210", addr1);
+        Customer customer2 = new Customer("Bob Jones", "bob@example.com", "9876543211", addr2);
         Customer customer3 = new Customer("Charlie Brown", "charlie@example.com", "9876543212");
 
         System.out.println("--- Registered Customers ---");
-        System.out.println(customer1.getCustomerId() + ": " + customer1.getName() + " | " + customer1.getEmail() + " | " + customer1.getMobile());
-        System.out.println(customer2.getCustomerId() + ": " + customer2.getName() + " | " + customer2.getEmail() + " | " + customer2.getMobile());
-        System.out.println(customer3.getCustomerId() + ": " + customer3.getName() + " | " + customer3.getEmail() + " | " + customer3.getMobile());
+        System.out.println(customer1);
+        System.out.println(customer2);
+        System.out.println(customer3);
 
-        // Requirement 5: Create three Account objects inside an Account[] array
+        // Requirement 4: Demonstration of clone() on Customer
+        System.out.println("\n--- Customer clone() Demonstration ---");
+        Customer clonedCustomer1 = customer1.clone();
+        System.out.println("Original Customer: " + customer1);
+        System.out.println("Cloned Customer:   " + clonedCustomer1);
+        System.out.println("Is clone a separate object instance? " + (customer1 != clonedCustomer1));
+        System.out.println("Are customer IDs identical? " + customer1.getCustomerId().equals(clonedCustomer1.getCustomerId()));
+
+        // Create three Account objects in an Account[] array
         Account[] accounts = new Account[3];
         accounts[0] = new Account(customer1.getName(), 5000);
         accounts[1] = new Account(customer2.getName(), 2000);
-        accounts[2] = new Account(customer3.getName()); // Uses constructor chaining this(ownerName, 0)
+        accounts[2] = new Account(customer3.getName()); // Uses this(ownerName, 0)
 
-        System.out.println("\n--- Initial Account Details ---");
+        // Requirement 5: Print accounts using toString()
+        System.out.println("\n--- Accounts Printed using toString() ---");
         for (Account account : accounts) {
-            System.out.println("Account Number: " + account.getAccountNumber() +
-                    " | Owner: " + account.getOwnerName() +
-                    " | Balance: Rs." + account.getBalance() +
-                    " | Active: " + account.isActive());
+            System.out.println(account.toString());
         }
 
-        // Perform deposits and withdrawals
+        // Transactions demonstration
         System.out.println("\n--- Performing Transactions ---");
-
-        System.out.println("1. Depositing Rs.1500 to " + accounts[0].getAccountNumber() + " (" + accounts[0].getOwnerName() + ")...");
         accounts[0].deposit(1500);
+        System.out.println("Deposited Rs.1500 into " + accounts[0].getAccountNumber() + " -> " + accounts[0]);
 
-        System.out.println("2. Withdrawing Rs.1000 from " + accounts[1].getAccountNumber() + " (" + accounts[1].getOwnerName() + ")...");
         boolean bobSuccess = accounts[1].withdraw(1000);
-        System.out.println("   Withdrawal status: " + (bobSuccess ? "Successful" : "Failed"));
+        System.out.println("Withdrew Rs.1000 from " + accounts[1].getAccountNumber() + " (Success: " + bobSuccess + ") -> " + accounts[1]);
 
-        System.out.println("3. Withdrawing Rs.500 from " + accounts[2].getAccountNumber() + " (" + accounts[2].getOwnerName() + ", current balance: 0)...");
         boolean charlieSuccess = accounts[2].withdraw(500);
-        System.out.println("   Withdrawal status: " + (charlieSuccess ? "Successful" : "Failed (Insufficient balance)"));
+        System.out.println("Withdrew Rs.500 from " + accounts[2].getAccountNumber() + " (Success: " + charlieSuccess + " - Insufficient balance) -> " + accounts[2]);
 
-        System.out.println("4. Depositing Rs.3000 to " + accounts[2].getAccountNumber() + " (" + accounts[2].getOwnerName() + ")...");
         accounts[2].deposit(3000);
+        System.out.println("Deposited Rs.3000 into " + accounts[2].getAccountNumber() + " -> " + accounts[2]);
 
-        // Print each final balance
+        // Requirement 5: Compare two Account objects with equals()
+        System.out.println("\n--- Comparing Accounts with equals() & hashCode() ---");
+        System.out.println("accounts[0].equals(accounts[0]): " + accounts[0].equals(accounts[0]) + " (Same account)");
+        System.out.println("accounts[0].equals(accounts[1]): " + accounts[0].equals(accounts[1]) + " (Different accounts)");
+        System.out.println("accounts[0] hashCode: " + accounts[0].hashCode());
+        System.out.println("accounts[1] hashCode: " + accounts[1].hashCode());
+
+        // Requirement 5: Use instanceof to check an object's type
+        System.out.println("\n--- Type Checking with instanceof ---");
+        Object obj1 = accounts[0];
+        Object obj2 = "Non-account string object";
+
+        if (obj1 instanceof Account acc) {
+            System.out.println("obj1 is an instance of Account: " + acc.getAccountNumber() + " (Owner: " + acc.getOwnerName() + ")");
+        } else {
+            System.out.println("obj1 is NOT an instance of Account");
+        }
+
+        if (obj2 instanceof Account) {
+            System.out.println("obj2 is an instance of Account");
+        } else {
+            System.out.println("obj2 is NOT an instance of Account (Type: " + obj2.getClass().getSimpleName() + ")");
+        }
+
+        // Print final balances
         System.out.println("\n--- Final Account Balances ---");
         for (Account account : accounts) {
-            System.out.println("Account: " + account.getAccountNumber() +
-                    " | Owner: " + account.getOwnerName() +
-                    " | Final Balance: Rs." + account.getBalance());
+            System.out.println(account);
         }
     }
 

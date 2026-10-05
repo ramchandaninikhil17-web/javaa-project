@@ -1,3 +1,5 @@
+import java.util.Objects;
+
 public class Account {
     private static long accountCounter = 1;
 
@@ -54,6 +56,27 @@ public class Account {
 
     public boolean isActive() {
         return active;
+    }
+
+    // Requirement 1: Override toString() with readable line containing accountNumber, ownerName, balance
+    @Override
+    public String toString() {
+        return "Account [Account Number: " + accountNumber + ", Owner: " + ownerName + ", Balance: Rs." + balance + "]";
+    }
+
+    // Requirement 2: Override equals(Object o) based on accountNumber
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Account account = (Account) o;
+        return Objects.equals(accountNumber, account.accountNumber);
+    }
+
+    // Requirement 2: Override hashCode() consistent with equals()
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(accountNumber);
     }
 
     public static void main(String[] args) {
