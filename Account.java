@@ -1,6 +1,6 @@
 import java.util.Objects;
 
-public class Account {
+public abstract class Account {
     private static long accountCounter = 1;
 
     private final String accountNumber;
@@ -32,14 +32,18 @@ public class Account {
         }
     }
 
-    // Subtracts amount if sufficient balance, returns true; otherwise returns false
+    // Subtracts amount if canWithdraw(amount) is true, returns true; otherwise returns false
     public boolean withdraw(long amount) {
-        if (amount > 0 && balance >= amount) {
+        if (amount > 0 && canWithdraw(amount)) {
             balance -= amount;
             return true;
         }
         return false;
     }
+
+    // Abstract methods to be implemented by subclasses
+    public abstract double interestRate();
+    public abstract boolean canWithdraw(long amount);
 
     // Getter methods
     public String getAccountNumber() {
@@ -58,13 +62,13 @@ public class Account {
         return active;
     }
 
-    // Requirement 1: Override toString() with readable line containing accountNumber, ownerName, balance
+    // Override toString() with readable line containing accountNumber, ownerName, balance
     @Override
     public String toString() {
         return "Account [Account Number: " + accountNumber + ", Owner: " + ownerName + ", Balance: Rs." + balance + "]";
     }
 
-    // Requirement 2: Override equals(Object o) based on accountNumber
+    // Override equals(Object o) based on accountNumber
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -73,7 +77,7 @@ public class Account {
         return Objects.equals(accountNumber, account.accountNumber);
     }
 
-    // Requirement 2: Override hashCode() consistent with equals()
+    // Override hashCode() consistent with equals()
     @Override
     public int hashCode() {
         return Objects.hashCode(accountNumber);
