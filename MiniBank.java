@@ -2,88 +2,64 @@ import java.util.Scanner;
 
 public class MiniBank {
     public static void main(String[] args) {
-        // Record object printed as application header
+        // Application header
         BankInfo bankInfo = new BankInfo("MiniBank", "Downtown Branch");
         System.out.println("=========================================");
         System.out.println(bankInfo);
         System.out.println("=========================================\n");
 
-        // Requirement 3: Customer with nested Address class
-        Customer.Address addr1 = new Customer.Address("12 MG Road", "Bengaluru", "560001");
-        Customer.Address addr2 = new Customer.Address("45 Park Street", "Kolkata", "700016");
+        // Requirement 5: Test each validator with one correct and one wrong input
+        System.out.println("--- 1. Validation Tests ---");
 
-        Customer customer1 = new Customer("Alice Smith", "alice@example.com", "9876543210", addr1);
-        Customer customer2 = new Customer("Bob Jones", "bob@example.com", "9876543211", addr2);
-        Customer customer3 = new Customer("Charlie Brown", "charlie@example.com", "9876543212");
+        // Mobile validation
+        String validMobile = "9876543210";
+        String invalidMobile = "12345";
+        System.out.println("Mobile '" + validMobile + "' is valid: " + Validator.isValidMobile(validMobile));
+        System.out.println("Mobile '" + invalidMobile + "' is valid: " + Validator.isValidMobile(invalidMobile));
 
-        System.out.println("--- Registered Customers ---");
-        System.out.println(customer1);
-        System.out.println(customer2);
-        System.out.println(customer3);
+        // Email validation
+        String validEmail = "alice@example.com";
+        String invalidEmail = "alice_at_example.com";
+        System.out.println("Email '" + validEmail + "' is valid: " + Validator.isValidEmail(validEmail));
+        System.out.println("Email '" + invalidEmail + "' is valid: " + Validator.isValidEmail(invalidEmail));
 
-        // Requirement 4: Demonstration of clone() on Customer
-        System.out.println("\n--- Customer clone() Demonstration ---");
-        Customer clonedCustomer1 = customer1.clone();
-        System.out.println("Original Customer: " + customer1);
-        System.out.println("Cloned Customer:   " + clonedCustomer1);
-        System.out.println("Is clone a separate object instance? " + (customer1 != clonedCustomer1));
-        System.out.println("Are customer IDs identical? " + customer1.getCustomerId().equals(clonedCustomer1.getCustomerId()));
+        // PAN validation
+        String validPan = "ABCDE1234F";
+        String invalidPan = "12345ABCDE";
+        System.out.println("PAN '" + validPan + "' is valid: " + Validator.isValidPan(validPan));
+        System.out.println("PAN '" + invalidPan + "' is valid: " + Validator.isValidPan(invalidPan));
 
-        // Create three Account objects in an Account[] array
-        Account[] accounts = new Account[3];
-        accounts[0] = new Account(customer1.getName(), 5000);
-        accounts[1] = new Account(customer2.getName(), 2000);
-        accounts[2] = new Account(customer3.getName()); // Uses this(ownerName, 0)
+        // IFSC validation
+        String validIfsc = "SBIN0001234";
+        String invalidIfsc = "SBI0123";
+        System.out.println("IFSC '" + validIfsc + "' is valid: " + Validator.isValidIfsc(validIfsc));
+        System.out.println("IFSC '" + invalidIfsc + "' is valid: " + Validator.isValidIfsc(invalidIfsc));
 
-        // Requirement 5: Print accounts using toString()
-        System.out.println("\n--- Accounts Printed using toString() ---");
-        for (Account account : accounts) {
-            System.out.println(account.toString());
+        // Requirement 5: Parse a sample command and print its three parts
+        System.out.println("\n--- 2. Command Parsing Test ---");
+        String sampleLine = "DEPOSIT AC0001 500";
+        System.out.println("Parsing input line: \"" + sampleLine + "\"");
+        Command command = CommandParser.parse(sampleLine);
+
+        System.out.println("Parsed Command parts:");
+        System.out.println("  1. Transaction Type : " + command.type());
+        System.out.println("  2. Account Number   : " + command.accountNumber());
+        System.out.println("  3. Amount           : Rs." + command.amount());
+
+        // Requirement 4 demonstration: StatementFormatter
+        System.out.println("\n--- 3. Account Statement Test ---");
+        Account account = new Account("Alice Smith", 5000);
+        System.out.println("Initial Statement:");
+        System.out.println(StatementFormatter.buildStatement(account));
+
+        // Execute the parsed command on the account
+        System.out.println("\nExecuting command on " + account.getAccountNumber() + "...");
+        if (command.type() == TransactionType.DEPOSIT) {
+            account.deposit(command.amount());
         }
 
-        // Transactions demonstration
-        System.out.println("\n--- Performing Transactions ---");
-        accounts[0].deposit(1500);
-        System.out.println("Deposited Rs.1500 into " + accounts[0].getAccountNumber() + " -> " + accounts[0]);
-
-        boolean bobSuccess = accounts[1].withdraw(1000);
-        System.out.println("Withdrew Rs.1000 from " + accounts[1].getAccountNumber() + " (Success: " + bobSuccess + ") -> " + accounts[1]);
-
-        boolean charlieSuccess = accounts[2].withdraw(500);
-        System.out.println("Withdrew Rs.500 from " + accounts[2].getAccountNumber() + " (Success: " + charlieSuccess + " - Insufficient balance) -> " + accounts[2]);
-
-        accounts[2].deposit(3000);
-        System.out.println("Deposited Rs.3000 into " + accounts[2].getAccountNumber() + " -> " + accounts[2]);
-
-        // Requirement 5: Compare two Account objects with equals()
-        System.out.println("\n--- Comparing Accounts with equals() & hashCode() ---");
-        System.out.println("accounts[0].equals(accounts[0]): " + accounts[0].equals(accounts[0]) + " (Same account)");
-        System.out.println("accounts[0].equals(accounts[1]): " + accounts[0].equals(accounts[1]) + " (Different accounts)");
-        System.out.println("accounts[0] hashCode: " + accounts[0].hashCode());
-        System.out.println("accounts[1] hashCode: " + accounts[1].hashCode());
-
-        // Requirement 5: Use instanceof to check an object's type
-        System.out.println("\n--- Type Checking with instanceof ---");
-        Object obj1 = accounts[0];
-        Object obj2 = "Non-account string object";
-
-        if (obj1 instanceof Account acc) {
-            System.out.println("obj1 is an instance of Account: " + acc.getAccountNumber() + " (Owner: " + acc.getOwnerName() + ")");
-        } else {
-            System.out.println("obj1 is NOT an instance of Account");
-        }
-
-        if (obj2 instanceof Account) {
-            System.out.println("obj2 is an instance of Account");
-        } else {
-            System.out.println("obj2 is NOT an instance of Account (Type: " + obj2.getClass().getSimpleName() + ")");
-        }
-
-        // Print final balances
-        System.out.println("\n--- Final Account Balances ---");
-        for (Account account : accounts) {
-            System.out.println(account);
-        }
+        System.out.println("\nUpdated Statement after " + command.type() + ":");
+        System.out.println(StatementFormatter.buildStatement(account));
     }
 
     // Interactive menu shell preserved from Practical 1
