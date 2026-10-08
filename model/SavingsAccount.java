@@ -1,4 +1,6 @@
-public class SavingsAccount extends Account {
+package model;
+
+public class SavingsAccount extends Account implements Premium {
     private long minBalance;
 
     public SavingsAccount(String ownerName, long balance, long minBalance) {
@@ -7,7 +9,7 @@ public class SavingsAccount extends Account {
     }
 
     public SavingsAccount(String ownerName, long balance) {
-        this(ownerName, balance, 1000); // default minBalance of 1000
+        this(ownerName, balance, 1000);
     }
 
     public long getMinBalance() {

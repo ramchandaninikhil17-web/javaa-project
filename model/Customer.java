@@ -1,3 +1,5 @@
+package model;
+
 public class Customer implements Cloneable {
     private static long customerCounter = 101;
 
@@ -7,7 +9,6 @@ public class Customer implements Cloneable {
     private String mobile;
     private Address address;
 
-    // Requirement 3: Public static nested class named Address
     public static class Address {
         private String line;
         private String city;
@@ -69,7 +70,6 @@ public class Customer implements Cloneable {
         return mobile;
     }
 
-    // Requirement 3: getAddress() method
     public Address getAddress() {
         return address;
     }
@@ -78,7 +78,6 @@ public class Customer implements Cloneable {
         this.address = address;
     }
 
-    // Requirement 4: clone() method implementing Cloneable
     @Override
     public Customer clone() {
         try {

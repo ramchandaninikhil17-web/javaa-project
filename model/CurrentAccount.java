@@ -1,3 +1,5 @@
+package model;
+
 public class CurrentAccount extends Account {
     private long overdraftLimit;
 
@@ -7,7 +9,7 @@ public class CurrentAccount extends Account {
     }
 
     public CurrentAccount(String ownerName, long balance) {
-        this(ownerName, balance, 5000); // default overdraftLimit of 5000
+        this(ownerName, balance, 5000);
     }
 
     public long getOverdraftLimit() {
