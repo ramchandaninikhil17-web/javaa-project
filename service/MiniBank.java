@@ -1,6 +1,7 @@
 package service;
 
 import model.*;
+import util.AnnotationValidator;
 import util.Validator;
 import static util.StatementFormatter.buildStatement; // Requirement 5: Static import
 
@@ -76,6 +77,38 @@ public class MiniBank {
 
         // Calling statically imported buildStatement
         System.out.println("\n" + buildStatement(accounts[0]));
+
+        // Requirement 5 (Part B): Reflection & Annotation Validation (@Positive, @MaxLength)
+        System.out.println("\n--- 5. Custom Annotations & Reflection Validation (Part B) ---");
+
+        // Test 1: Account with negative balance (violating @Positive)
+        System.out.println("[Test 1] Creating an account with negative balance (-500)...");
+        Account invalidBalanceAccount = new SavingsAccount("David Miller", -500, 1000);
+        String[] balanceErrors = AnnotationValidator.validate(invalidBalanceAccount);
+        System.out.println("Validation result (" + balanceErrors.length + " error(s) detected):");
+        for (String error : balanceErrors) {
+            System.out.println("  -> Error: " + error);
+        }
+
+        // Test 2: Account with owner name exceeding @MaxLength(30)
+        System.out.println("\n[Test 2] Creating an account with owner name exceeding @MaxLength(30)...");
+        Account longNameAccount = new CurrentAccount("Maximilian Alexander Montgomery The Third", 1500, 5000);
+        String[] lengthErrors = AnnotationValidator.validate(longNameAccount);
+        System.out.println("Validation result (" + lengthErrors.length + " error(s) detected):");
+        for (String error : lengthErrors) {
+            System.out.println("  -> Error: " + error);
+        }
+
+        // Test 3: Legitimate account satisfying all rules
+        System.out.println("\n[Test 3] Validating legitimate account (" + accounts[0].getAccountNumber() + ")...");
+        String[] validErrors = AnnotationValidator.validate(accounts[0]);
+        if (validErrors.length == 0) {
+            System.out.println("  -> Validation passed! Account is completely valid.");
+        } else {
+            for (String error : validErrors) {
+                System.out.println("  -> Error: " + error);
+            }
+        }
     }
 
     // Interactive menu shell preserved from Practical 1

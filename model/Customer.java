@@ -1,9 +1,17 @@
 package model;
 
+import model.annotation.Id;
+import model.annotation.MaxLength;
+
+import java.util.Objects;
+
 public class Customer implements Cloneable {
     private static long customerCounter = 101;
 
+    @Id
     private final String customerId;
+
+    @MaxLength(50)
     private String name;
     private String email;
     private String mobile;
@@ -95,5 +103,18 @@ public class Customer implements Cloneable {
     public String toString() {
         return "Customer [ID: " + customerId + ", Name: " + name + ", Email: " + email + ", Mobile: " + mobile +
                 (address != null ? ", Address: (" + address + ")" : "") + "]";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Customer customer = (Customer) o;
+        return Objects.equals(customerId, customer.customerId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(customerId);
     }
 }
