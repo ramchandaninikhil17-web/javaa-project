@@ -1,5 +1,9 @@
 package model;
 
+import exception.AccountNotFoundException;
+import exception.BankException;
+import exception.InsufficientFundsException;
+import exception.InvalidAmountException;
 import model.annotation.Id;
 import model.annotation.MaxLength;
 import model.annotation.Positive;
@@ -36,19 +40,73 @@ public abstract class Account implements Transactable, InterestBearing {
     }
 
     @Override
-    public void deposit(long amount) {
-        if (amount > 0) {
-            balance += amount;
+    public void deposit(long amount) throws InvalidAmountException {
+        if (amount <= 0) {
+            throw new InvalidAmountException("Deposit amount must be greater than zero. Provided: Rs." + amount);
         }
+        balance += amount;
     }
 
     @Override
-    public boolean withdraw(long amount) {
-        if (amount > 0 && canWithdraw(amount)) {
-            balance -= amount;
-            return true;
+    public void withdraw(long amount) throws InsufficientFundsException, InvalidAmountException {
+        if (amount <= 0) {
+            throw new InvalidAmountException("Withdrawal amount must be greater than zero. Provided: Rs." + amount);
         }
-        return false;
+        if (!canWithdraw(amount)) {
+            long shortfall = getShortfall(amount);
+            throw new InsufficientFundsException(
+                "Insufficient funds: Cannot withdraw Rs." + amount + " from " + accountNumber + ". Shortfall: Rs." + shortfall,
+                shortfall
+            );
+        }
+        balance -= amount;
+    }
+
+    /**
+     * Transfers funds to another account with transactional safety.
+     * Uses try-catch-finally and re-throws BankException.
+     *
+     * @param to the target destination account
+     * @param amount the amount to transfer
+     * @throws BankException if validation, withdrawal, or deposit fails
+     */
+    public void transfer(Account to, long amount) throws BankException {
+        if (to == null) {
+            throw new AccountNotFoundException("Destination account not found (null account specified).");
+        }
+        if (to.equals(this)) {
+            throw new InvalidAmountException("Cannot transfer funds to the same account: " + accountNumber);
+        }
+        if (amount <= 0) {
+            throw new InvalidAmountException("Transfer amount must be greater than zero. Provided: Rs." + amount);
+        }
+
+        boolean withdrawn = false;
+        try {
+            this.withdraw(amount);
+            withdrawn = true;
+            to.deposit(amount);
+        } catch (BankException e) {
+            // Rollback withdrawal if the deposit step fails
+            if (withdrawn) {
+                try {
+                    this.deposit(amount);
+                } catch (InvalidAmountException ignored) {
+                    // Internal rollback
+                }
+            }
+            throw e;
+        } finally {
+            System.out.println("  [Audit Log] Transfer attempt of Rs." + amount + " from "
+                    + this.accountNumber + " to " + to.getAccountNumber() + " completed.");
+        }
+    }
+
+    /**
+     * Calculates the deficit or shortfall if the given amount cannot be withdrawn.
+     */
+    public long getShortfall(long amount) {
+        return Math.max(0, amount - balance);
     }
 
     // Abstract methods

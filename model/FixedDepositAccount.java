@@ -16,6 +16,11 @@ public class FixedDepositAccount extends Account {
     }
 
     @Override
+    public long getShortfall(long amount) {
+        return amount; // Locked deposit, full amount cannot be withdrawn
+    }
+
+    @Override
     public String toString() {
         return super.toString() + " [FixedDepositAccount - Locked Deposit, Interest: " + interestRate() + "%]";
     }

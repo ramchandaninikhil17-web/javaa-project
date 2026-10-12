@@ -27,6 +27,12 @@ public class SavingsAccount extends Account implements Premium {
     }
 
     @Override
+    public long getShortfall(long amount) {
+        long maxWithdrawable = Math.max(0, getBalance() - minBalance);
+        return amount > maxWithdrawable ? amount - maxWithdrawable : 0;
+    }
+
+    @Override
     public String toString() {
         return super.toString() + " [SavingsAccount - Min Balance: Rs." + minBalance + ", Interest: " + interestRate() + "%]";
     }

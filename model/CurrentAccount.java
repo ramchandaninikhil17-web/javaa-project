@@ -27,6 +27,12 @@ public class CurrentAccount extends Account {
     }
 
     @Override
+    public long getShortfall(long amount) {
+        long maxWithdrawable = Math.max(0, getBalance() + overdraftLimit);
+        return amount > maxWithdrawable ? amount - maxWithdrawable : 0;
+    }
+
+    @Override
     public String toString() {
         return super.toString() + " [CurrentAccount - Overdraft Limit: Rs." + overdraftLimit + ", Interest: " + interestRate() + "%]";
     }

@@ -1,5 +1,6 @@
 package service;
 
+import exception.*;
 import model.*;
 import util.AnnotationValidator;
 import util.Validator;
@@ -65,10 +66,14 @@ public class MiniBank {
         // Requirement 1: Transactable interface in action
         System.out.println("\n--- 3. Transactable Interface Operations ---");
         Transactable t = accounts[0];
-        t.deposit(1500);
-        System.out.println("Deposited Rs.1500 into " + accounts[0].getAccountNumber() + " -> New Balance: Rs." + accounts[0].getBalance());
-        boolean success = t.withdraw(2000);
-        System.out.println("Withdrew Rs.2000 from " + accounts[0].getAccountNumber() + " -> Status: " + success + ", Balance: Rs." + accounts[0].getBalance());
+        try {
+            t.deposit(1500);
+            System.out.println("Deposited Rs.1500 into " + accounts[0].getAccountNumber() + " -> New Balance: Rs." + accounts[0].getBalance());
+            t.withdraw(2000);
+            System.out.println("Withdrew Rs.2000 from " + accounts[0].getAccountNumber() + " -> New Balance: Rs." + accounts[0].getBalance());
+        } catch (BankException e) {
+            System.out.println("Transaction failed: " + e.getMessage());
+        }
 
         // Command parsing and Statement formatting (using static import buildStatement)
         System.out.println("\n--- 4. Command Parsing & Statement Generation ---");
@@ -108,6 +113,73 @@ public class MiniBank {
             for (String error : validErrors) {
                 System.out.println("  -> Error: " + error);
             }
+        }
+
+        // Milestone 1 Checkpoint: Fault Tolerance & Custom Exception Hierarchy
+        System.out.println("\n--- 6. Milestone 1 Checkpoint: Fault Tolerance & Custom Exceptions ---");
+
+        // 6.1 InvalidAmountException on deposit
+        System.out.println("[Test 6.1] Attempting deposit with non-positive amount (-500)...");
+        try {
+            accounts[0].deposit(-500);
+        } catch (InvalidAmountException e) {
+            System.out.println("  -> Caught InvalidAmountException: " + e.getMessage());
+        }
+
+        // 6.2 InvalidAmountException on withdrawal
+        System.out.println("\n[Test 6.2] Attempting withdrawal with zero amount (0)...");
+        try {
+            accounts[0].withdraw(0);
+        } catch (InvalidAmountException e) {
+            System.out.println("  -> Caught InvalidAmountException: " + e.getMessage());
+        } catch (InsufficientFundsException e) {
+            System.out.println("  -> Caught InsufficientFundsException: " + e.getMessage());
+        }
+
+        // 6.3 InsufficientFundsException with Shortfall
+        System.out.println("\n[Test 6.3] Attempting withdrawal exceeding balance (Balance: Rs." 
+                + accounts[0].getBalance() + ", Requested: Rs.10000)...");
+        try {
+            accounts[0].withdraw(10000);
+        } catch (InsufficientFundsException e) {
+            System.out.println("  -> Caught InsufficientFundsException: " + e.getMessage());
+            System.out.println("  -> Explicit Shortfall: Rs." + e.getShortfall() 
+                    + " (Please deposit at least Rs." + e.getShortfall() + " to complete this withdrawal)");
+        } catch (InvalidAmountException e) {
+            System.out.println("  -> Caught InvalidAmountException: " + e.getMessage());
+        }
+
+        // 6.4 AccountNotFoundException in transfer (null destination)
+        System.out.println("\n[Test 6.4] Attempting transfer to an invalid/null destination account...");
+        try {
+            accounts[0].transfer(null, 1000);
+        } catch (AccountNotFoundException e) {
+            System.out.println("  -> Caught AccountNotFoundException: " + e.getMessage());
+        } catch (BankException e) {
+            System.out.println("  -> Caught BankException: " + e.getMessage());
+        }
+
+        // 6.5 Successful transfer using try, catch, and finally
+        System.out.println("\n[Test 6.5] Transferring Rs.1500 from " + accounts[0].getAccountNumber() 
+                + " to " + accounts[1].getAccountNumber() + "...");
+        try {
+            accounts[0].transfer(accounts[1], 1500);
+            System.out.println("  -> Transfer successful! Sender balance: Rs." + accounts[0].getBalance() 
+                    + " | Receiver balance: Rs." + accounts[1].getBalance());
+        } catch (BankException e) {
+            System.out.println("  -> Transfer failed: " + e.getMessage());
+        } finally {
+            System.out.println("  -> [Caller Finally Block]: Transfer operation lifecycle completed.");
+        }
+
+        // 6.6 Try-With-Resources using AutoCloseable BankSession
+        System.out.println("\n[Test 6.6] Try-With-Resources using AutoCloseable BankSession...");
+        try (BankSession session = new BankSession("Operator-Alice")) {
+            session.logOperation("Audited deposit into " + accounts[0].getAccountNumber());
+            accounts[0].deposit(500);
+            System.out.println("  -> Deposited Rs.500 inside active session. Current Balance: Rs." + accounts[0].getBalance());
+        } catch (InvalidAmountException e) {
+            System.out.println("  -> Session error: " + e.getMessage());
         }
     }
 
