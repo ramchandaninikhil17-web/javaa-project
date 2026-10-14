@@ -40,15 +40,29 @@ public abstract class Account implements Transactable, InterestBearing {
     }
 
     @Override
-    public void deposit(long amount) throws InvalidAmountException {
+    public synchronized void deposit(long amount) throws InvalidAmountException {
         if (amount <= 0) {
             throw new InvalidAmountException("Deposit amount must be greater than zero. Provided: Rs." + amount);
         }
         balance += amount;
     }
 
+    /**
+     * Unsynchronized deposit used to demonstrate race conditions under concurrent access.
+     */
+    public void depositUnsafe(long amount) throws InvalidAmountException {
+        if (amount <= 0) {
+            throw new InvalidAmountException("Deposit amount must be greater than zero. Provided: Rs." + amount);
+        }
+        balance += amount;
+    }
+
+    protected void setBalanceDirectly(long newBalance) {
+        this.balance = newBalance;
+    }
+
     @Override
-    public void withdraw(long amount) throws InsufficientFundsException, InvalidAmountException {
+    public synchronized void withdraw(long amount) throws InsufficientFundsException, InvalidAmountException {
         if (amount <= 0) {
             throw new InvalidAmountException("Withdrawal amount must be greater than zero. Provided: Rs." + amount);
         }
@@ -123,7 +137,7 @@ public abstract class Account implements Transactable, InterestBearing {
     }
 
     @Override
-    public long getBalance() {
+    public synchronized long getBalance() {
         return balance;
     }
 

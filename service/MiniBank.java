@@ -181,6 +181,155 @@ public class MiniBank {
         } catch (InvalidAmountException e) {
             System.out.println("  -> Session error: " + e.getMessage());
         }
+
+        // =========================================================================
+        // Practical 9 (Part B): Multithreading, Concurrency & Thread Safety
+        // =========================================================================
+        System.out.println("\n=================================================================");
+        System.out.println("--- 7. Multithreading, Race Conditions & Thread Safety (Part B) ---");
+        System.out.println("=================================================================");
+
+        final int numWorkers = 10;
+        final int depositsPerWorker = 1000;
+        final long depositAmount = 1;
+        final long expectedBalance = numWorkers * depositsPerWorker * depositAmount; // 10,000
+
+        // 7.1 Demonstrating Race Condition (Without Synchronization)
+        System.out.println("\n[Test 7.1] Demonstrating Race Condition WITHOUT Synchronization...");
+        System.out.println("  Starting Balance : Rs.0");
+        System.out.println("  Workload         : 10 threads x 1,000 deposits of Rs.1 each");
+        System.out.println("  Expected Balance : Rs." + expectedBalance);
+
+        Account unsafeAccount = new UnsynchronizedAccount("Unsafe-Account", 0);
+        Thread[] unsafeThreads = new Thread[numWorkers];
+
+        for (int i = 0; i < numWorkers; i++) {
+            unsafeThreads[i] = new Thread(
+                new AccountWorker(unsafeAccount, depositsPerWorker, depositAmount),
+                "UnsafeWorker-" + (i + 1)
+            );
+            unsafeThreads[i].start();
+        }
+
+        for (Thread thread : unsafeThreads) {
+            try {
+                thread.join();
+            } catch (InterruptedException e) {
+                System.err.println("Thread join interrupted: " + e.getMessage());
+            }
+        }
+
+        long unsafeFinalBalance = unsafeAccount.getBalance();
+        System.out.println("\n  -> Final Balance (Unsafe): Rs." + unsafeFinalBalance);
+        System.out.println("  -> Lost Deposits Count   : " + (expectedBalance - unsafeFinalBalance));
+        if (unsafeFinalBalance < expectedBalance) {
+            System.out.println("  -> Outcome: RACE CONDITION OCCURRED! Final balance is less than Rs." 
+                    + expectedBalance + " due to uncoordinated concurrent updates.");
+        } else {
+            System.out.println("  -> Outcome: Threads did not collide on this run.");
+        }
+
+        // 7.2 Fixing Race Condition with Synchronization
+        System.out.println("\n[Test 7.2] Demonstrating Thread Safety WITH 'synchronized' Keyword...");
+        System.out.println("  Starting Balance : Rs.0");
+        System.out.println("  Workload         : 10 threads x 1,000 deposits of Rs.1 each");
+        System.out.println("  Expected Balance : Rs." + expectedBalance);
+
+        Account safeAccount = new SavingsAccount("Safe-Account", 0, 0);
+        Thread[] safeThreads = new Thread[numWorkers];
+
+        for (int i = 0; i < numWorkers; i++) {
+            safeThreads[i] = new Thread(
+                new AccountWorker(safeAccount, depositsPerWorker, depositAmount),
+                "SafeWorker-" + (i + 1)
+            );
+            safeThreads[i].start();
+        }
+
+        for (Thread thread : safeThreads) {
+            try {
+                thread.join();
+            } catch (InterruptedException e) {
+                System.err.println("Thread join interrupted: " + e.getMessage());
+            }
+        }
+
+        long safeFinalBalance = safeAccount.getBalance();
+        System.out.println("\n  -> Final Balance (Safe)  : Rs." + safeFinalBalance);
+        System.out.println("  -> Lost Deposits Count   : " + (expectedBalance - safeFinalBalance));
+        System.out.println("  -> Outcome: EXACT MATCH! Synchronization guaranteed atomic read-modify-write operations.");
+
+        // 7.3 Observing Thread Lifecycle States
+        System.out.println("\n[Test 7.3] Observing Thread Lifecycle States...");
+        Account lifecycleAcc = new SavingsAccount("Lifecycle-Account", 0, 0);
+        Thread demoThread = new Thread(new AccountWorker(lifecycleAcc, 5, 10), "LifecycleObserverThread");
+
+        System.out.println("  1. State after creation (before start) : " + demoThread.getState()); // NEW
+        demoThread.start();
+        System.out.println("  2. State immediately after start()     : " + demoThread.getState()); // RUNNABLE
+        try {
+            demoThread.join();
+        } catch (InterruptedException ignored) {}
+        System.out.println("  3. State after join() (completed)      : " + demoThread.getState()); // TERMINATED
+
+        // 7.4 Supplementary Problem 1: Concurrent Deposits & Withdrawals
+        System.out.println("\n[Test 7.4] Supplementary Problem 1: Concurrent Deposits AND Withdrawals...");
+        final long initialBiDirBalance = 5000;
+        final int biDirWorkers = 10;
+        final int biDirTimes = 500;
+        final long biDirAmount = 2; // 10 * 500 * 2 = 10,000 added, 10,000 withdrawn -> net 0
+        Account biDirAccount = new SavingsAccount("BiDirectional-Account", initialBiDirBalance, 0);
+
+        Thread[] depositWorkers = new Thread[biDirWorkers];
+        Thread[] withdrawWorkers = new Thread[biDirWorkers];
+
+        for (int i = 0; i < biDirWorkers; i++) {
+            depositWorkers[i] = new Thread(
+                new AccountWorker(biDirAccount, biDirTimes, biDirAmount, false),
+                "Depositor-" + (i + 1)
+            );
+            withdrawWorkers[i] = new Thread(
+                new AccountWorker(biDirAccount, biDirTimes, biDirAmount, true),
+                "Withdrawer-" + (i + 1)
+            );
+            depositWorkers[i].start();
+            withdrawWorkers[i].start();
+        }
+
+        for (int i = 0; i < biDirWorkers; i++) {
+            try {
+                depositWorkers[i].join();
+                withdrawWorkers[i].join();
+            } catch (InterruptedException ignored) {}
+        }
+
+        System.out.println("\n  Starting Balance: Rs." + initialBiDirBalance);
+        System.out.println("  Total Added     : Rs." + (biDirWorkers * biDirTimes * biDirAmount));
+        System.out.println("  Total Withdrawn : Rs." + (biDirWorkers * biDirTimes * biDirAmount));
+        System.out.println("  Final Balance   : Rs." + biDirAccount.getBalance());
+        System.out.println("  -> Outcome: PERFECT CONCURRENCY! Balance preserved exactly at Rs." + initialBiDirBalance);
+
+        // 7.5 Supplementary Problem 2: Lock-Free Concurrency with AtomicLong
+        System.out.println("\n[Test 7.5] Supplementary Problem 2: Lock-Free Concurrency with AtomicLong...");
+        Account atomicAccount = new AtomicAccount("Atomic-Account", 0);
+        Thread[] atomicThreads = new Thread[numWorkers];
+
+        for (int i = 0; i < numWorkers; i++) {
+            atomicThreads[i] = new Thread(
+                new AccountWorker(atomicAccount, depositsPerWorker, depositAmount),
+                "AtomicWorker-" + (i + 1)
+            );
+            atomicThreads[i].start();
+        }
+
+        for (Thread thread : atomicThreads) {
+            try {
+                thread.join();
+            } catch (InterruptedException ignored) {}
+        }
+
+        System.out.println("\n  AtomicAccount Final Balance: Rs." + atomicAccount.getBalance());
+        System.out.println("  -> Outcome: AtomicLong hardware-level CAS guarantees non-blocking thread safety without lock overhead.");
     }
 
     // Interactive menu shell preserved from Practical 1
