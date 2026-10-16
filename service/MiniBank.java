@@ -330,6 +330,19 @@ public class MiniBank {
 
         System.out.println("\n  AtomicAccount Final Balance: Rs." + atomicAccount.getBalance());
         System.out.println("  -> Outcome: AtomicLong hardware-level CAS guarantees non-blocking thread safety without lock overhead.");
+
+        // =========================================================================
+        // Practical 10 (Part B): MiniBank Transaction Engine & Concurrency Control
+        // =========================================================================
+        System.out.println("\n=================================================================");
+        System.out.println("--- 8. Transaction Engine, Wait/Notify & Deadlock (Lab 10 Part B) ---");
+        System.out.println("=================================================================\n");
+
+        TransactionEngineRunner.runThreadPoolBatch();
+        System.out.println("\n-----------------------------------------------------------------");
+        TransactionEngineRunner.runProducerConsumer();
+        System.out.println("\n-----------------------------------------------------------------");
+        TransactionEngineRunner.runDeadlockAndFix();
     }
 
     // Interactive menu shell preserved from Practical 1
