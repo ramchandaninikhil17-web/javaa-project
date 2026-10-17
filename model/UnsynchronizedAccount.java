@@ -7,6 +7,7 @@ import exception.InvalidAmountException;
  * when deposit is NOT synchronized.
  */
 public class UnsynchronizedAccount extends Account {
+    private static final long serialVersionUID = 1L;
 
     public UnsynchronizedAccount(String ownerName, long balance) {
         super(ownerName, balance);

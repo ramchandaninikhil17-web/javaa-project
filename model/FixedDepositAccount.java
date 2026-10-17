@@ -1,6 +1,8 @@
 package model;
 
 public class FixedDepositAccount extends Account {
+    private static final long serialVersionUID = 1L;
+
     public FixedDepositAccount(String ownerName, long balance) {
         super(ownerName, balance);
     }

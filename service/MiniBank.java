@@ -6,6 +6,8 @@ import util.AnnotationValidator;
 import util.Validator;
 import static util.StatementFormatter.buildStatement; // Requirement 5: Static import
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Scanner;
 
 public class MiniBank {
@@ -343,6 +345,61 @@ public class MiniBank {
         TransactionEngineRunner.runProducerConsumer();
         System.out.println("\n-----------------------------------------------------------------");
         TransactionEngineRunner.runDeadlockAndFix();
+
+        // =========================================================================
+        // Practical 11 (Part B): Persistence, Transaction Logging & NIO Reporting
+        // =========================================================================
+        System.out.println("\n=================================================================");
+        System.out.println("--- 9. Persistence, Transaction Logging & NIO Reporting (Lab 11) ---");
+        System.out.println("=================================================================\n");
+
+        Path dataFile = Paths.get("data", "accounts.ser");
+        Path logsFolder = Paths.get("logs");
+        Path logFile1 = logsFolder.resolve("transactions_daily.log");
+        Path logFile2 = logsFolder.resolve("transactions_audit.log");
+        Path reportFile = Paths.get("reports", "end_of_day_report.txt");
+
+        try {
+            // Requirement 5.1: Save accounts to binary file with ObjectOutputStream
+            System.out.println("[Test 9.1] Saving Account State with ObjectOutputStream (StatePersister)...");
+            System.out.println("  Target Serialization File : " + dataFile.toAbsolutePath().normalize());
+            StatePersister.save(accounts, dataFile);
+            System.out.println("  -> Successfully serialized " + accounts.length + " accounts to binary file.");
+
+            // Requirement 5.2: Reload accounts into a new array and print to confirm data survived
+            System.out.println("\n[Test 9.2] Reloading Account State with ObjectInputStream (StatePersister)...");
+            Account[] reloadedAccounts = StatePersister.load(dataFile);
+            System.out.println("  -> Successfully deserialized " + reloadedAccounts.length + " accounts into new array.");
+            System.out.println("  Confirming restored account data:");
+            for (Account acc : reloadedAccounts) {
+                System.out.println("    " + acc);
+            }
+
+            // Requirement 5.3: Append transaction log records using TransactionLog (CREATE & APPEND)
+            System.out.println("\n[Test 9.3] Appending Transaction Records with TransactionLog (CREATE & APPEND)...");
+            TransactionLog.append(logFile1, "DEPOSIT AC0001 5000");
+            TransactionLog.append(logFile1, "WITHDRAW AC0001 1500");
+            TransactionLog.append(logFile1, "DEPOSIT AC0002 12000");
+            TransactionLog.append(logFile1, "WITHDRAW AC0002 4000");
+
+            TransactionLog.append(logFile2, "DEPOSIT AC0003 25000");
+            TransactionLog.append(logFile2, "WITHDRAW AC0001 2000");
+            TransactionLog.append(logFile2, "DEPOSIT AC0002 3500");
+
+            System.out.println("  -> Successfully appended transaction records to:");
+            System.out.println("     * " + logFile1.toAbsolutePath().normalize());
+            System.out.println("     * " + logFile2.toAbsolutePath().normalize());
+
+            // Requirement 5.4: Generate and print report with Java NIO DirectoryStream and BufferedReader
+            System.out.println("\n[Test 9.4] Generating End-of-Day Summary Report with Java NIO (ReportGenerator)...");
+            String reportSummary = ReportGenerator.generateReport(logsFolder, reportFile);
+            System.out.println("  -> Report successfully written to: " + reportFile.toAbsolutePath().normalize());
+            System.out.println("\n" + reportSummary);
+
+        } catch (Exception e) {
+            System.err.println("Persistence & Reporting Error: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     // Interactive menu shell preserved from Practical 1

@@ -1,6 +1,7 @@
 package model;
 
 public class CurrentAccount extends Account {
+    private static final long serialVersionUID = 1L;
     private long overdraftLimit;
 
     public CurrentAccount(String ownerName, long balance, long overdraftLimit) {

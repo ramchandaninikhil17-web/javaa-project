@@ -3,9 +3,11 @@ package model;
 import model.annotation.Id;
 import model.annotation.MaxLength;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public class Customer implements Cloneable {
+public class Customer implements Cloneable, Serializable {
+    private static final long serialVersionUID = 1L;
     private static long customerCounter = 101;
 
     @Id
@@ -17,7 +19,8 @@ public class Customer implements Cloneable {
     private String mobile;
     private Address address;
 
-    public static class Address {
+    public static class Address implements Serializable {
+        private static final long serialVersionUID = 1L;
         private String line;
         private String city;
         private String pincode;

@@ -12,6 +12,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * intrinsic monitor locks (synchronized).
  */
 public class AtomicAccount extends Account {
+    private static final long serialVersionUID = 1L;
     private final AtomicLong atomicBalance;
 
     public AtomicAccount(String ownerName, long initialBalance) {

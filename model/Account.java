@@ -8,9 +8,11 @@ import model.annotation.Id;
 import model.annotation.MaxLength;
 import model.annotation.Positive;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public abstract class Account implements Transactable, InterestBearing {
+public abstract class Account implements Transactable, InterestBearing, Serializable {
+    private static final long serialVersionUID = 1L;
     private static long accountCounter = 1;
 
     @Id
