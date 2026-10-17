@@ -1,22 +1,51 @@
 package service;
 
+import model.Account;
+
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Lab 10 - Part B (Requirement 1): TransactionProcessor
+ * Lab 10 - Part B & Milestone 2 Checkpoint: TransactionProcessor
  * 
- * Manages a fixed thread pool of 4 threads to process banking transactions
- * concurrently instead of creating new threads manually every time.
+ * Manages a fixed thread pool of 4 threads to process banking transactions concurrently.
+ * Requirement 5: Uses a ConcurrentHashMap<String, Account> for shared accounts so access is thread-safe.
  */
 public class TransactionProcessor {
     // 1. Holds an ExecutorService created with Executors.newFixedThreadPool(4)
     private final ExecutorService executor;
 
+    // Requirement 5: Thread-safe ConcurrentHashMap for shared accounts
+    private final ConcurrentHashMap<String, Account> sharedAccounts = new ConcurrentHashMap<>();
+
     public TransactionProcessor() {
         // Creates a pool with 4 worker threads ready to take tasks from the queue
         this.executor = Executors.newFixedThreadPool(4);
+    }
+
+    /**
+     * Requirement 5: Registers an account into the thread-safe ConcurrentHashMap.
+     */
+    public void addAccount(Account account) {
+        if (account != null) {
+            sharedAccounts.put(account.getAccountNumber(), account);
+        }
+    }
+
+    /**
+     * Requirement 5: Retrieves an account by account number from the thread-safe ConcurrentHashMap.
+     */
+    public Account getAccount(String accountNumber) {
+        return sharedAccounts.get(accountNumber);
+    }
+
+    /**
+     * Requirement 5: Returns the thread-safe map of shared accounts.
+     */
+    public ConcurrentHashMap<String, Account> getSharedAccounts() {
+        return sharedAccounts;
     }
 
     // 2. Submit method that passes a Runnable task to the executor

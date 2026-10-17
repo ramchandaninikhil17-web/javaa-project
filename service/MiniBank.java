@@ -400,6 +400,81 @@ public class MiniBank {
             System.err.println("Persistence & Reporting Error: " + e.getMessage());
             e.printStackTrace();
         }
+
+        // =========================================================================
+        // Practical 12 (Part B): Collections Framework - Milestone 2 Checkpoint
+        // =========================================================================
+        System.out.println("\n=================================================================");
+        System.out.println("--- 10. Collections Framework Storage & Milestone 2 (Lab 12) ---");
+        System.out.println("=================================================================\n");
+
+        // Requirement 1: Create an AccountStore that keeps accounts in a HashMap<String, Account>
+        AccountStore store = new AccountStore();
+
+        // Requirement 6: Add several accounts to the store
+        Account a1 = new SavingsAccount("Diana Prince", 15000, 1000);
+        Account a2 = new CurrentAccount("Bruce Wayne", 85000, 10000);
+        Account a3 = new FixedDepositAccount("Clark Kent", 50000);
+        Account a4 = new SavingsAccount("Barry Allen", 3500, 500);
+        Account a5 = new CurrentAccount("Arthur Curry", 24000, 5000);
+
+        store.add(a1);
+        store.add(a2);
+        store.add(a3);
+        store.add(a4);
+        store.add(a5);
+
+        System.out.println("[Test 10.1] Added " + store.size() + " accounts to AccountStore (HashMap<String, Account>):");
+        for (Account acc : store.getAll()) {
+            System.out.println("  * Key: " + acc.getAccountNumber() + " -> " + acc.getOwnerName() 
+                    + " | Balance: Rs." + acc.getBalance());
+        }
+
+        // Test O(1) lookup via get(String accountNumber)
+        System.out.println("\n[Test 10.2] O(1) Lookup with AccountStore.get(accountNumber):");
+        String lookupId = a2.getAccountNumber();
+        Account found = store.get(lookupId);
+        System.out.println("  Searched for key [" + lookupId + "]: " 
+                + (found != null ? "FOUND -> " + found : "NOT FOUND"));
+
+        // Requirement 2: Transaction history in ArrayList<String>
+        System.out.println("\n[Test 10.3] Transaction History in ArrayList<String>:");
+        store.addTransaction("DEPOSIT: Rs.5000 credited to " + a4.getAccountNumber());
+        store.addTransaction("WITHDRAW: Rs.2000 debited from " + a1.getAccountNumber());
+        for (String tx : store.getTransactionHistory()) {
+            System.out.println("  [LOG] " + tx);
+        }
+
+        // Requirement 3 & 6: Print accounts sorted by balance using Comparator
+        System.out.println("\n[Test 10.4] Accounts Sorted by Balance (Comparator via sortedByBalance()):");
+        System.out.println("-----------------------------------------------------------------");
+        System.out.printf("  %-10s | %-16s | %-15s | %s%n", "Account No", "Owner", "Balance", "Type");
+        System.out.println("-----------------------------------------------------------------");
+        for (Account acc : store.sortedByBalance()) {
+            System.out.printf("  %-10s | %-16s | Rs.%-12d | %s%n",
+                    acc.getAccountNumber(), acc.getOwnerName(), acc.getBalance(), acc.getClass().getSimpleName());
+        }
+        System.out.println("-----------------------------------------------------------------");
+
+        // Requirement 4: Natural ordering with Comparable<Account> (account number)
+        System.out.println("\n[Test 10.5] Accounts Sorted by Account Number (Natural Comparable<Account>):");
+        System.out.println("-----------------------------------------------------------------");
+        for (Account acc : store.sortedByAccountNumber()) {
+            System.out.printf("  %-10s | %-16s | Rs.%-12d%n",
+                    acc.getAccountNumber(), acc.getOwnerName(), acc.getBalance());
+        }
+        System.out.println("-----------------------------------------------------------------");
+
+        // Requirement 5: Thread-safe ConcurrentHashMap in TransactionProcessor
+        System.out.println("\n[Test 10.6] Thread-Safe Shared Accounts via ConcurrentHashMap in TransactionProcessor:");
+        TransactionProcessor sharedProcessor = new TransactionProcessor();
+        sharedProcessor.addAccount(a1);
+        sharedProcessor.addAccount(a2);
+        sharedProcessor.addAccount(a3);
+        System.out.println("  ConcurrentHashMap size: " + sharedProcessor.getSharedAccounts().size());
+        System.out.println("  Retrieved from ConcurrentHashMap [" + a1.getAccountNumber() + "]: " 
+                + sharedProcessor.getAccount(a1.getAccountNumber()).getOwnerName());
+        sharedProcessor.stop();
     }
 
     // Interactive menu shell preserved from Practical 1

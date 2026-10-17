@@ -11,7 +11,7 @@ import model.annotation.Positive;
 import java.io.Serializable;
 import java.util.Objects;
 
-public abstract class Account implements Transactable, InterestBearing, Serializable {
+public abstract class Account implements Transactable, InterestBearing, Serializable, Comparable<Account> {
     private static final long serialVersionUID = 1L;
     private static long accountCounter = 1;
 
@@ -163,5 +163,16 @@ public abstract class Account implements Transactable, InterestBearing, Serializ
     @Override
     public int hashCode() {
         return Objects.hashCode(accountNumber);
+    }
+
+    /**
+     * Requirement 4: Implements natural ordering for Account by comparing account numbers.
+     */
+    @Override
+    public int compareTo(Account other) {
+        if (other == null) {
+            return 1;
+        }
+        return this.accountNumber.compareTo(other.accountNumber);
     }
 }

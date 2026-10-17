@@ -50,6 +50,9 @@ public class TransactionEngineRunner {
         System.out.println("\nCreating TransactionProcessor (fixed thread pool of 4)...");
 
         TransactionProcessor processor = new TransactionProcessor();
+        processor.addAccount(alice);
+        processor.addAccount(bob);
+        System.out.println("  [ConcurrentHashMap] Registered " + processor.getSharedAccounts().size() + " accounts into thread-safe map.");
 
         // Submit 8 tasks (mix of deposits and withdrawals)
         System.out.println("Submitting 8 batch transaction tasks...\n");
