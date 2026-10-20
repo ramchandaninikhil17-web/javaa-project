@@ -475,6 +475,71 @@ public class MiniBank {
         System.out.println("  Retrieved from ConcurrentHashMap [" + a1.getAccountNumber() + "]: " 
                 + sharedProcessor.getAccount(a1.getAccountNumber()).getOwnerName());
         sharedProcessor.stop();
+
+        // =========================================================================
+        // Practical 13 (Part B): Generic Repository<T> & Reflection-Based Persistence
+        // =========================================================================
+        System.out.println("\n=================================================================");
+        System.out.println("--- 11. Generic Repository<T> & Reflection Persistence (Lab 13) ---");
+        System.out.println("=================================================================\n");
+
+        // Requirement 1 & 5: Create a Repository<Account>
+        Repository<Account> accountRepo = new Repository<>();
+
+        Account repoAcc1 = new SavingsAccount("Peter Parker", 12000, 1000);
+        Account repoAcc2 = new CurrentAccount("Tony Stark", 250000, 50000);
+        Account repoAcc3 = new FixedDepositAccount("Steve Rogers", 75000);
+        Account repoAcc4 = new SavingsAccount("Natasha Romanoff", 45000, 2000);
+
+        // Requirement 1 & 2: save(entity) with reflection-based @Id detection
+        System.out.println("[Test 11.1] Saving Account using reflection @Id extraction:");
+        accountRepo.save(repoAcc1);
+        System.out.println("  Saved: " + repoAcc1.getAccountNumber() + " -> " + repoAcc1.getOwnerName());
+
+        // Requirement 3: saveAll(T... items) with @SafeVarargs
+        System.out.println("\n[Test 11.2] Saving batch accounts with @SafeVarargs saveAll():");
+        accountRepo.saveAll(repoAcc2, repoAcc3, repoAcc4);
+        System.out.println("  Successfully persisted 3 accounts via saveAll(). Total in repo: " + accountRepo.count());
+
+        // Requirement 5: fetch one by id (findById)
+        System.out.println("\n[Test 11.3] Fetching entity by ID with findById():");
+        String searchId = repoAcc2.getAccountNumber();
+        Account fetched = accountRepo.findById(searchId);
+        System.out.println("  Lookup result for [" + searchId + "]: " 
+                + (fetched != null ? fetched : "NOT FOUND"));
+
+        // Requirement 5: print all of them (findAll)
+        System.out.println("\n[Test 11.4] Printing all entities using findAll():");
+        System.out.println("-----------------------------------------------------------------");
+        for (Account acc : accountRepo.findAll()) {
+            System.out.println("  * " + acc);
+        }
+        System.out.println("-----------------------------------------------------------------");
+
+        // Test delete(id)
+        System.out.println("\n[Test 11.5] Deleting an account by ID using delete():");
+        String deleteId = repoAcc1.getAccountNumber();
+        boolean deleted = accountRepo.delete(deleteId);
+        System.out.println("  Deleted [" + deleteId + "]: " + deleted + " | Remaining Count: " + accountRepo.count());
+
+        // Requirement 4: Bounded generic method <N extends Number> double average(N[] values)
+        System.out.println("\n[Test 11.6] Bounded Generic Method: Repository.average(N[]):");
+        Long[] sampleBalances = new Long[] { 12000L, 250000L, 75000L, 45000L };
+        double avgBalance = Repository.average(sampleBalances);
+        System.out.printf("  Average of Long balances     : Rs.%,.2f%n", avgBalance);
+
+        Double[] sampleInterestRates = new Double[] { 4.0, 0.0, 7.0, 4.0 };
+        double avgRate = Repository.average(sampleInterestRates);
+        System.out.printf("  Average of Double interest rates: %.2f%%%n", avgRate);
+
+        // Reusability Check: Repository<Customer> with @Id on customerId
+        System.out.println("\n[Test 11.7] Reusability Verification: Repository<Customer>:");
+        Repository<Customer> customerRepo = new Repository<>();
+        Customer cust = new Customer("Bruce Banner", "banner@avengers.org", "9876543210");
+        customerRepo.save(cust);
+        System.out.println("  Saved Customer into generic repo: " + cust);
+        Customer retrievedCust = customerRepo.findById(cust.getCustomerId());
+        System.out.println("  Retrieved Customer by ID [" + cust.getCustomerId() + "]: " + retrievedCust.getName());
     }
 
     // Interactive menu shell preserved from Practical 1
