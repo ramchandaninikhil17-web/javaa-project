@@ -1,19 +1,20 @@
 =================================================================
                MINIBANK END-OF-DAY SUMMARY REPORT                
 =================================================================
-Generated On : 2026-10-20 20:13:37
+Generated On : 2026-10-21 18:17:51
 Logs Folder  : C:\Users\ramch\Downloads\javaa project\logs
 -----------------------------------------------------------------
 INSPECTED TRANSACTION LOG FILES:
-  * transactions_audit.log     | Size:    260 bytes | Last Modified: 2026-10-20T14:43:37.3418806Z
-  * transactions_daily.log     | Size:    348 bytes | Last Modified: 2026-10-20T14:43:37.3380643Z
+  * audit.log                  | Size: 102086 bytes | Last Modified: 2026-10-21T12:47:50.9694926Z
+  * transactions_audit.log     | Size:    325 bytes | Last Modified: 2026-10-21T12:39:29.2347402Z
+  * transactions_daily.log     | Size:  19739 bytes | Last Modified: 2026-10-21T12:47:51.0721571Z
 -----------------------------------------------------------------
 TRANSACTION TOTALS & RECONCILIATION:
-  Total Log Files Processed : 2
-  Total Deposits Count      : 16 transactions
-  Total Deposits Sum        : Rs.182,000
-  Total Withdrawals Count   : 12 transactions
-  Total Withdrawals Sum     : Rs.30,000
-  Net Bank Cash Flow        : Rs.152,000 (+SURPLUS)
+  Total Log Files Processed : 3
+  Total Deposits Count      : 1024 transactions
+  Total Deposits Sum        : Rs.248,000
+  Total Withdrawals Count   : 18 transactions
+  Total Withdrawals Sum     : Rs.44,000
+  Net Bank Cash Flow        : Rs.204,000 (+SURPLUS)
 =================================================================
 
