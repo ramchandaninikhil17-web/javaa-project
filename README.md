@@ -1,5 +1,7 @@
 # MiniBank — Object-Oriented Banking Application
 
+**Name:** Nikhil Ramchandani
+**ID:** 25IT084
 **Course:** Object Oriented Programming (CEUE203)  
 **Academic Year:** 2026 – 2027 | Semester – 3  
 **Practical 14:** Final Capstone Project Work — MiniBank Assembly, Testing & Packaging  
@@ -180,38 +182,3 @@ SUCCESS: All MiniBank unit tests passed successfully!
 ```
 
 ---
-
-## 7. Viva Q&A Reference
-
-### Q1: What is a layered architecture, and why is it useful in MiniBank?
-**Answer:**  
-A layered architecture divides the application into distinct tiers:
-- **Presentation Layer (`MiniBank`):** Handles console UI, Scanner inputs, and menus.
-- **Service Layer (`BankService`):** Coordinates business transactions, validations, and background tasks.
-- **Persistence Layer (`Repository<T>`, `StatePersister`):** Stores and persists domain objects.
-- **Model Layer (`Account`, `Customer`):** Defines data structure and core invariants.
-
-**Benefits:**
-- **Separation of Concerns:** Business logic is isolated from UI code. The UI could be swapped for a GUI or web frontend without rewriting banking logic.
-- **Testability:** Service methods can be unit-tested without navigating a console menu.
-- **Reusability:** The generic `Repository<T>` can store any entity (`Account`, `Customer`, etc.) without code duplication.
-
----
-
-### Q2: How do you verify in JUnit that a method throws an expected exception?
-**Answer:**  
-Using `assertThrows`:
-```java
-assertThrows(InsufficientFundsException.class, () -> {
-    service.withdraw(accountNumber, excessiveAmount);
-});
-```
-`assertThrows` takes the expected exception class and an executable lambda. If the lambda throws the expected exception, the assertion passes and returns the exception instance. If no exception or an unexpected type is thrown, an `AssertionError` is raised.
-
----
-
-### Q3: What advantages does packaging the application into a runnable JAR offer?
-**Answer:**  
-1. **Portability:** Bundles compiled bytecode, resources, and manifest metadata into a single distributable archive.
-2. **Simplified Execution:** With `Main-Class: service.MiniBank` specified in `manifest.mf`, users execute the program with `java -jar minibank.jar` without configuring classpaths manually.
-3. **Integrity:** Encapsulates the complete directory structure into an uncorrupted package ready for distribution.
